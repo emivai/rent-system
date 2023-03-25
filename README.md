@@ -1,1 +1,1 @@
-# rent-system
+# Kelionės reikmių nuomos sistema
