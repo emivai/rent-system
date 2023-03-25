@@ -1,4 +1,5 @@
-﻿using RentSystem.Core.Enums;
+﻿using RentSystem.Core.Entities;
+using RentSystem.Core.Enums;
 
 namespace RentSystem.Core.DTOs
 {
@@ -10,6 +11,5 @@ namespace RentSystem.Core.DTOs
         public DeliveryType DeliveryType { get; set; }
         public DateTime RentStart { get; set; }
         public DateTime RentEnd { get; set; }
-        public int ItemId { get; set; }
     }
 }

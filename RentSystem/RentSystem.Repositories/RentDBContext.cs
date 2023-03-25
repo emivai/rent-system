@@ -22,7 +22,7 @@ namespace RentSystem.Repositories
 
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Advert>().HasOne(a => a.Item);
+            modelBuilder.Entity<Advert>().HasMany(a => a.Items).WithOne(i => i.Advert).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

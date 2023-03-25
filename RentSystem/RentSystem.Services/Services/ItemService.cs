@@ -56,6 +56,7 @@ namespace RentSystem.Services.Services
             item.Name = itemDTO.Name;
             item.Price = itemDTO.Price;
             item.State = itemDTO.State;
+            item.AdvertId = itemDTO.AdvertId;
 
             await _itemRepository.UpdateAsync(item);
         }

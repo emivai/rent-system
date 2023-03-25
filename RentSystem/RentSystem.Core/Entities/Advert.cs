@@ -11,7 +11,6 @@ namespace RentSystem.Core.Entities
         public DeliveryType DeliveryType { get; set; }
         public DateTime RentStart {get;set;}
         public DateTime RentEnd { get; set; }
-        public int ItemId { get; set; }
-        public virtual Item Item { get; set; }
+        public virtual List<Item> Items { get; set; } = new List<Item>();
     }
 }

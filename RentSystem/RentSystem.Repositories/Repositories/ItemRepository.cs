@@ -15,12 +15,12 @@ namespace RentSystem.Repositories.Repositories
 
         public async Task<ICollection<Item>> GetAllAsync()
         {
-            return await _rentDBContext.Items.ToListAsync();
+            return await _rentDBContext.Items.AsNoTracking().ToListAsync();
         }
 
         public async Task<Item?> GetAsync(int id)
         {
-            return await _rentDBContext.Items.FirstOrDefaultAsync(x => x.Id == id);
+            return await _rentDBContext.Items.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         }
         public async Task CreateAsync(Item item)
         {

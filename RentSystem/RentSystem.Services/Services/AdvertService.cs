@@ -40,16 +40,7 @@ namespace RentSystem.Services.Services
 
         public async Task CreateAsync(AdvertDTO advertDTO)
         {
-            var item = await _itemRepository.GetAsync(advertDTO.ItemId);
-
-            if (item == null)
-            {
-                throw new Exception();
-            }
-
             var advert = _mapper.Map<Advert>(advertDTO);
-
-            advert.Item = item;
 
             await _advertRepository.CreateAsync(advert);
         }
@@ -63,21 +54,12 @@ namespace RentSystem.Services.Services
                 throw new Exception();
             }
 
-            var item = await _itemRepository.GetAsync(advertDTO.ItemId);
-
-            if (item == null)
-            {
-                throw new Exception();
-            }
-
             advert.Description = advertDTO.Description;
             advert.ImageUrl = advertDTO.ImageUrl;
             advert.VideoUrl = advertDTO.VideoUrl;
             advert.DeliveryType = advertDTO.DeliveryType;
             advert.RentStart = advertDTO.RentStart;
             advert.RentEnd = advertDTO.RentEnd;
-            advert.ItemId = advertDTO.ItemId;
-            advert.Item = item;
 
             await _advertRepository.UpdateAsync(advert);
         }

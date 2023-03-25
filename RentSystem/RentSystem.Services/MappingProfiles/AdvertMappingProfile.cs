@@ -9,7 +9,9 @@ namespace RentSystem.Services.MappingProfiles
         public AdvertMappingProfile()
         {
             CreateMap<Advert, GetAdvertDTO>().ReverseMap();
-            CreateMap<Advert, AdvertDTO>().ReverseMap();
+            CreateMap<Advert, AdvertDTO>()
+                .ForMember(m => m.DeliveryType,
+                       opt => opt.MapFrom(o => o.DeliveryType)).ReverseMap();
         }
     }
 }

@@ -9,5 +9,7 @@ namespace RentSystem.Core.Entities
         public string Name { get; set; } = string.Empty;
         public double Price { get; set; }
         public State State { get; set; }
+        public int AdvertId {get;set;}
+        public Advert Advert { get; set; }
     }
 }
