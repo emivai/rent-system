@@ -73,6 +73,33 @@ namespace RentSystem.UnitTests.Services
             _mapperMock.Verify(mapper => mapper.Map<UserDTO>(It.IsAny<User>()), Times.Never);
         }
 
+        [Test, AutoData]
+        public async Task CreateAsync_UserExists_CreatesAndReturnsMapped(int userId)
+        {
+            var userDTO = GenerateRegisterUserDTO();
+            _userRepositoryMock.Setup(repo => repo.FirstOrDefault(It.IsAny<Func<User, bool>>())).Returns(It.IsAny<User>());
+            _mapperMock.Setup(mapper => mapper.Map<User>(userDTO)).Returns(new User { Id = userId });
+
+            await _userService.CreateAsync(userDTO);
+
+            _userRepositoryMock.Verify(repo => repo.FirstOrDefault(It.IsAny<Func<User, bool>>()), Times.Once);
+            _userRepositoryMock.Verify(repo => repo.CreateAsync(It.IsAny<User>()), Times.Once);
+            _mapperMock.Verify(mapper => mapper.Map<User>(userDTO), Times.Once);
+        }
+
+        [Test, AutoData]
+        public void CreateAsync_UserDoesNotExist_ThrowsException(int userId)
+        {
+            var userDTO = GenerateRegisterUserDTO();
+            _userRepositoryMock.Setup(repo => repo.FirstOrDefault(It.IsAny<Func<User, bool>>())).Returns(new User { Id = userId });
+
+            Assert.ThrowsAsync<BadRequestException>(async () => await _userService.CreateAsync(userDTO));
+
+            _userRepositoryMock.Verify(repo => repo.FirstOrDefault(It.IsAny<Func<User, bool>>()), Times.Once);
+            _userRepositoryMock.Verify(repo => repo.CreateAsync(It.IsAny<User>()), Times.Never);
+            _mapperMock.Verify(mapper => mapper.Map<User>(It.IsAny<RegisterUserDTO>()), Times.Never);
+        }
+
         [Test]
         public async Task LoginAsync_UserExists_ReturnsSuccessfullLoginDTO()
         {
@@ -193,5 +220,23 @@ namespace RentSystem.UnitTests.Services
                 PostCode = Faker.Address.ZipCode()
             };
         }
+
+        private static RegisterUserDTO GenerateRegisterUserDTO()
+        {
+            return new RegisterUserDTO
+            {
+                Role = Faker.Enum.Random<Role>(),
+                Name = Faker.Name.First(),
+                Surname = Faker.Name.Last(),
+                Phone = Faker.Phone.Number(),
+                Email = Faker.Internet.Email(),
+                City = Faker.Address.City(),
+                HouseNumber = Faker.RandomNumber.Next().ToString(),
+                PostCode = Faker.Address.ZipCode(),
+                Password = Faker.Lorem.GetFirstWord(),
+                ConfirmPassword = Faker.Lorem.GetFirstWord() 
+            };
+        }
+
     }
 }
