@@ -87,7 +87,7 @@ namespace RentSystem.UnitTests.Services
         }
 
         [Test, AutoData]
-        public async Task CreateAsync_UserDoesNotExist_CreatesAndReturnsMapped(int userId, bool isAvailable)
+        public async Task CreateAsync_UserDoesNotExist_CreatesAndReturnsMapped(int userId)
         {
             RequestDTO requestDTO = GenerateRequestDTO();
 
