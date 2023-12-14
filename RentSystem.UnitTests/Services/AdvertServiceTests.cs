@@ -43,18 +43,17 @@ namespace RentSystem.UnitTests.Services
             Assert.That(result, Is.InstanceOf<List<GetAdvertDTO>>());
             _advertRepositoryMock.Verify(repo => repo.GetAllAsync(category), Times.Once);
             _mapperMock.Verify(mapper => mapper.Map<List<GetAdvertDTO>>(adverts), Times.Once);
-
         }
 
         [Test]
         public async Task GetAsync_AdvertExists_MapsAndReturnsAdvert()
         {
-            var expectedAdvert = GenerateAdvert();
+            var advert = GenerateAdvert();
 
-            _advertRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(expectedAdvert);
+            _advertRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(advert);
             _mapperMock.Setup(mapper => mapper.Map<GetAdvertDTO>(It.IsAny<Advert>())).Returns(new GetAdvertDTO());
 
-            var result = await _advertService.GetAsync(expectedAdvert.Id);
+            var result = await _advertService.GetAsync(advert.Id);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.InstanceOf<GetAdvertDTO>());
@@ -66,15 +65,91 @@ namespace RentSystem.UnitTests.Services
         [Test, AutoData]
         public async Task GetAsync_AdvertDoesNotExist_ThrowsException(int id)
         {
-            Advert? advert = null;
-
-            _advertRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(advert);
+            _advertRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(It.IsAny<Advert>());
             _mapperMock.Setup(mapper => mapper.Map<GetAdvertDTO>(It.IsAny<Advert>())).Returns(new GetAdvertDTO());
 
             Assert.ThrowsAsync<NotFoundException>(async () => await _advertService.GetAsync(id));
 
             _advertRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Once);
             _mapperMock.Verify(mapper => mapper.Map<GetAdvertDTO>(It.IsAny<Advert>()), Times.Never);
+        }
+
+        [Test, AutoData]
+        public async Task CreateAsync_UserExists_CreatesAndReturnsMapped(int userId)
+        {
+            AdvertDTO advertDTO = GenerateAdvertDTO();
+
+            _userRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(new User { Id = userId});
+            _mapperMock.Setup(mapper => mapper.Map<Advert>(It.IsAny<AdvertDTO>())).Returns(new Advert { UserId = userId, User = new User()});
+
+            await _advertService.CreateAsync(advertDTO, userId);
+
+            _userRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Once);
+            _advertRepositoryMock.Verify(repo => repo.CreateAsync(It.IsAny<Advert>()), Times.Once);
+            _mapperMock.Verify(mapper => mapper.Map<Advert>(It.IsAny<AdvertDTO>()), Times.Once);
+        }
+
+        [Test, AutoData]
+        public async Task CreateAsync_UserDoesNotExist_ThrowsException(int userId)
+        {
+            AdvertDTO advertDTO = GenerateAdvertDTO();
+
+            _userRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(It.IsAny<User>());
+            _mapperMock.Setup(mapper => mapper.Map<Advert>(It.IsAny<AdvertDTO>())).Returns(new Advert { UserId = userId, User = new User() });
+
+            Assert.ThrowsAsync<NotFoundException>(async () => await _advertService.CreateAsync(advertDTO, userId));
+
+            _userRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Once);
+            _advertRepositoryMock.Verify(repo => repo.CreateAsync(It.IsAny<Advert>()), Times.Never);
+            _mapperMock.Verify(mapper => mapper.Map<Advert>(It.IsAny<AdvertDTO>()), Times.Never);
+        }
+
+        [Test, AutoData]
+        public async Task UpdateAsync_AdvertExists_Updates(int id)
+        {
+            AdvertDTO advertDTO = GenerateAdvertDTO();
+
+            _advertRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(new Advert());
+
+            await _advertService.UpdateAsync(id, advertDTO);
+
+            _advertRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Once);
+            _advertRepositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Advert>()), Times.Once);
+        }
+
+        [Test, AutoData]
+        public async Task UpdateAsync_AdvertDoesNotExist_ThrowsException(int id)
+        {
+            AdvertDTO advertDTO = GenerateAdvertDTO();
+
+            _advertRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(It.IsAny<Advert>());
+
+            Assert.ThrowsAsync<NotFoundException>(async () => await _advertService.UpdateAsync(id, advertDTO));
+
+            _advertRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Once);
+            _advertRepositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Advert>()), Times.Never);
+        }
+
+        [Test, AutoData]
+        public async Task DeleteAsync_AdvertExists_Deletes(int id)
+        {
+            _advertRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(new Advert());
+
+            await _advertService.DeleteAsync(id);
+
+            _advertRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Once);
+            _advertRepositoryMock.Verify(repo => repo.DeleteAsync(It.IsAny<Advert>()), Times.Once);
+        }
+
+        [Test, AutoData]
+        public async Task DeleteAsync_AdvertDoesNotExist_ThrowsException(int id)
+        {
+            _advertRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(It.IsAny<Advert>());
+
+            Assert.ThrowsAsync<NotFoundException>(async () => await _advertService.DeleteAsync(id));
+
+            _advertRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Once);
+            _advertRepositoryMock.Verify(repo => repo.DeleteAsync(It.IsAny<Advert>()), Times.Never);
         }
 
         private static Advert GenerateAdvert()
@@ -92,6 +167,20 @@ namespace RentSystem.UnitTests.Services
                 Items = new List<Item> { new Item { Id = Faker.RandomNumber.Next()}, new Item { Id = Faker.RandomNumber.Next() } },
                 UserId = Faker.RandomNumber.Next(),
                 User = new User() { Id = Faker.RandomNumber.Next() }
+            };
+        }
+
+        private static AdvertDTO GenerateAdvertDTO()
+        {
+            return new AdvertDTO
+            {
+                Title = Faker.Lorem.GetFirstWord(),
+                Description = Faker.Lorem.Sentence(),
+                ImageUrl = Faker.Internet.Url(),
+                VideoUrl = Faker.Internet.Url(),
+                DeliveryType = Faker.Enum.Random<DeliveryType>(),
+                RentStart = DateTime.Now,
+                RentEnd = DateTime.Now.AddDays(7)
             };
         }
     }
