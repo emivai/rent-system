@@ -81,6 +81,7 @@ namespace RentSystem.UnitTests.Services
             _mapperMock.Setup(mapper => mapper.Map<Reservation>(It.IsAny<ReservationDTO>())).Returns(new Reservation { UserId = userId, User = new User()});
 
             Assert.ThrowsAsync<AlreadyExistsException>(async () => await _reservationService.CreateAsync(reservationDTO, userId));
+
             _reservationRepositoryMock.Verify(repo => repo.CreateAsync(It.IsAny<Reservation>()), Times.Never);
             _userRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Never);
             _itemRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Never);
@@ -98,6 +99,7 @@ namespace RentSystem.UnitTests.Services
             _mapperMock.Setup(mapper => mapper.Map<Reservation>(It.IsAny<ReservationDTO>())).Returns(new Reservation { UserId = userId, User = new User() });
 
             Assert.ThrowsAsync<NotFoundException>(async () => await _reservationService.CreateAsync(reservationDTO, userId));
+
             _userRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Once);
             _itemRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Never);
             _mapperMock.Verify(mapper => mapper.Map<Reservation>(It.IsAny<ReservationDTO>()), Times.Never);
@@ -115,6 +117,7 @@ namespace RentSystem.UnitTests.Services
             _mapperMock.Setup(mapper => mapper.Map<Reservation>(It.IsAny<ReservationDTO>())).Returns(new Reservation { UserId = userId, User = new User() });
 
             Assert.ThrowsAsync<NotFoundException>(async () => await _reservationService.CreateAsync(reservationDTO, userId));
+
             _userRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Once);
             _itemRepositoryMock.Verify(repo => repo.GetAsync(It.IsAny<int>()), Times.Once);
             _mapperMock.Verify(mapper => mapper.Map<Reservation>(It.IsAny<ReservationDTO>()), Times.Never);
