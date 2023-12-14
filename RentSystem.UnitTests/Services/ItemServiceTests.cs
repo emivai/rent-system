@@ -66,7 +66,6 @@ namespace RentSystem.UnitTests.Services
         public async Task GetAsync_ItemDoesNotExist_ThrowsException(int id)
         {
             _itemRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(It.IsAny<Item>());
-            _mapperMock.Setup(mapper => mapper.Map<GetItemDTO>(It.IsAny<Item>())).Returns(new GetItemDTO());
 
             Assert.ThrowsAsync<NotFoundException>(async () => await _itemService.GetAsync(id));
 
