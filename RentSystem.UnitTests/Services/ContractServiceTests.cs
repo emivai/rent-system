@@ -37,16 +37,14 @@ namespace RentSystem.UnitTests.Services
             );
         }
 
-        [Test]
-        public async Task CreateAsync_ValidInput_CreatesContract()
+        [Test, AutoData]
+        public async Task CreateAsync_ValidInput_CreatesContract(int userId)
         {
             var contractDTO = GenerateContract();
-
-            var userId = 1;
             var renter = new User { Id = userId };
 
-            _userRepositoryMock.Setup(repo => repo.GetAsync(userId)).ReturnsAsync(renter);
-            _itemRepositoryMock.Setup(repo => repo.GetAsync(contractDTO.ItemId)).ReturnsAsync(new Item { User = renter });
+            _userRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(renter);
+            _itemRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(new Item { User = renter });
             _userRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync(renter);
             _mapperMock.Setup(mapper => mapper.Map<Contract>(contractDTO))
            .Returns(new Contract());
@@ -55,14 +53,12 @@ namespace RentSystem.UnitTests.Services
             _contractRepositoryMock.Verify(repo => repo.CreateAsync(It.IsAny<Contract>()), Times.Once);
         }
 
-        [Test]
-        public async Task CreateAsync_InvalidRenter_ThrowsNotFoundException()
+        [Test, AutoData]
+        public async Task CreateAsync_InvalidRenter_ThrowsNotFoundException(int userId)
         {
             var contractDTO = GenerateContract();
 
-            var userId = 1;
-
-            _userRepositoryMock.Setup(repo => repo.GetAsync(userId)).ReturnsAsync((User)null);
+            _userRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<int>())).ReturnsAsync((User)null);
 
             Assert.ThrowsAsync<NotFoundException>(() => _contractService.CreateAsync(contractDTO, userId));
         }
@@ -75,7 +71,7 @@ namespace RentSystem.UnitTests.Services
             _contractRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(contracts);
 
             _mapperMock.Setup(mapper => mapper.Map<List<GetContractDTO>>(contracts))
-                       .Returns(contracts.Select(c => new GetContractDTO { /* Map properties if needed */ }).ToList());
+                       .Returns(contracts.Select(c => new GetContractDTO {}).ToList());
 
             var result = await _contractService.GetAllAsync();
 
@@ -84,10 +80,9 @@ namespace RentSystem.UnitTests.Services
             Assert.That(contracts.Count, Is.EqualTo(result.Count));
         }
 
-        [Test]
-        public async Task GetAsync_ExistingContractId_ReturnsGetContractDTO()
+        [Test, AutoData]
+        public async Task GetAsync_ExistingContractId_ReturnsGetContractDTO(int contractId)
         {
-            var contractId = 1;
             var existingContract = new Contract {};
             _contractRepositoryMock.Setup(repo => repo.GetAsync(contractId)).ReturnsAsync(existingContract);
             _mapperMock.Setup(mapper => mapper.Map<GetContractDTO>(existingContract))
@@ -98,12 +93,11 @@ namespace RentSystem.UnitTests.Services
             Assert.IsNotNull(result);
         }
 
-        [Test]
-        public void GetAsync_NonExistingContractId_ThrowsNotFoundException()
+        [Test, AutoData]
+        public void GetAsync_NonExistingContractId_ThrowsNotFoundException(int nonExistingContractId)
         {
-            var nonExistingContractId = 999;
-
-            _contractRepositoryMock.Setup(repo => repo.GetAsync(nonExistingContractId)).ReturnsAsync((Contract)null);
+            _contractRepositoryMock.Setup(repo => repo.GetAsync(nonExistingContractId))
+                .ReturnsAsync((Contract)null);
 
             Assert.ThrowsAsync<NotFoundException>(() => _contractService.GetAsync(nonExistingContractId));
         }
