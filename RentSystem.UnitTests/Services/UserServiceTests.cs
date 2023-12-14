@@ -234,7 +234,7 @@ namespace RentSystem.UnitTests.Services
                 HouseNumber = Faker.RandomNumber.Next().ToString(),
                 PostCode = Faker.Address.ZipCode(),
                 Password = Faker.Lorem.GetFirstWord(),
-                ConfirmPassword = Faker.Lorem.GetFirstWord() 
+                ConfirmPassword = Faker.Lorem.GetFirstWord()
             };
         }
 
