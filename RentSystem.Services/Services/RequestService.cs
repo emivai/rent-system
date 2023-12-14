@@ -31,6 +31,11 @@ namespace RentSystem.Services.Services
         {
             var request = await _requestRepository.GetAsync(id);
 
+            if (request == null)
+            {
+                throw new NotFoundException("Request", id);
+            }
+
             return _mapper.Map<GetRequestDTO>(request);
         }
 
