@@ -1,7 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using AutoMapper;
-using Moq;
-using RentSystem.Core.Contracts.Repository;
+﻿using RentSystem.Core.Contracts.Repository;
 using RentSystem.Core.Contracts.Service;
 using RentSystem.Core.DTOs;
 using RentSystem.Core.Entities;
